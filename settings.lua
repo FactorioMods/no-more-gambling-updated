@@ -1,5 +1,12 @@
 data:extend({
     {
+        type = "bool-setting",
+        name = "no-more-gambling-limit-collector-range-to-legendary",
+        setting_type = "startup",
+        default_value = true,
+        order = "i"
+    },
+    {
         type = "double-setting",
         name = "quality-cost-increase",
         setting_type = "startup",
