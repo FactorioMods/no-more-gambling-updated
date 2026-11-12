@@ -1,11 +1,19 @@
 {
-  "name": "no-more-gambling",
-  "version": "1.2.6",
-  "title": "No More Gambling",
-  "author": "@beast_pixels",
-  "contact": "api.beast@gmail.com",
-  "homepage": "https://www.factorio.com",
-  "dependencies": ["base >= 2.0.11", "quality >= 2.0.11", "space-age >= 2.0.11"],
+  "name": "no-more-gambling-updated",
+  "version": "1.2.7",
+  "title": "No More Gambling: Updated",
+  "author": "@beast_pixels, FactorioMods",
+  "homepage": "https://github.com/FactorioMods/no-more-gambling-updated",
+  "dependencies": [
+    "base >= 2.1.24",
+    "quality >= 2.1.24",
+    "space-age >= 2.1.24",
+    "! no-more-gambling"
+  ],
   "quality_required": true,
-  "factorio_version": "2.0"
+  "factorio_version": "2.1",
+  "description": "Deterministic quality crafting and precision fabricators for Factorio 2.1. Preserves paid crafts, buffered materials, item metadata and machine state when quality modules change.",
+  "migrates_from": [
+    "no-more-gambling"
+  ]
 }

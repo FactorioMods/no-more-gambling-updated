@@ -1,3 +1,4 @@
+local migration=require("migration-state")
 local prevent_mining_entity = nil
 
 _, _, major, minor, patch = string.find(script.active_mods["base"], "(%d+).(%d+).(%d+)")
@@ -107,169 +108,20 @@ local function patch_history(position, base_name, new_name)
 	return result
 end
 
-local function update_entity(entity, recipe, recipe_quality, actor)
-	local mods = entity.get_module_inventory()
-	if mods == nil then
-		return false
-	end
-
-	-- Don't mess with random, modded, possibly scripted entities
-	if entity.has_flag("not-selectable-in-game") then
-		return false
-	end
-
-	if machine_blacklist[entity.name] then
-		return false
-	end
-
-	local base_name = get_base(entity.name)
-	local num_base_quality_mods = (base_name == "fabricator" and 1 or 0)
-	local num_quality_mods = num_base_quality_mods + count_modules(entity)
-	local target_name = base_name.."-upcrafting-"..num_quality_mods
-	if num_quality_mods == num_base_quality_mods then
-		target_name = base_name
-	end
-
-	if entity.name == target_name then
-		return false
-	end
-
-	local item_stacks = {}
-	for key, inventory_id in pairs(defines.inventory) do
-		local inventory = entity.get_inventory(inventory_id)
-		if inventory then
-			for i = 1, #inventory do
-				local item_stack = inventory[i]
-				if item_stack and item_stack.valid_for_read then
-					item_stacks[inventory_id] = item_stacks[inventory_id] or {}
-					item_stacks[inventory_id][i] = {
-						name = item_stack.name,
-						count = item_stack.count,
-						quality = item_stack.quality,
-						health = item_stack.health,
-						durability = (item_stack.is_tool and item_stack.durability) or nil,
-						ammo = (item_stack.is_ammo and item_stack.ammo) or nil,
-						tags = (item_stack.is_item_with_tags and item_stack.tags) or nil,
-						custom_description = (item_stack.is_item_with_tags and item_stack.custom_description) or nil,
-						spoil_percent = item_stack.spoil_percent
-					}
-				end
-			end
-			inventory.clear()
-		end
-	end
-	
-	local player = entity.last_user
-	local has_open = (player and player.opened == entity)
-	local old_name = entity.name
-	local info = {
-		name = target_name,
-		position = entity.position,
-		quality = entity.quality,	
-		direction = entity.direction,
-		fast_replace = true,
-		force = entity.force,
-		preserve_ghosts_and_corpses = true,
-		create_build_effect_smoke = false,
-		spawn_decorations = false,
-		move_stuck_players = false,
-		spill = false,
-		player = player
-	}
-	local extra = {
-		health = entity.health,
-		direction = entity.direction,
-		mirroring = entity.mirroring,
-		orientation = entity.orientation,
-		products_finished = entity.products_finished,
-		last_user = entity.last_user
-	}
-	if entity.type == 'assembling-machine' then
-		info.recipe = adjust_recipe(recipe_name, target_name)
-	end
-
-	-- Remember what item requests were enabled for this entity.
-	local item_request_proxies = entity.surface.find_entities_filtered{area=entity.bounding_box, name='item-request-proxy', force=entity.force}
-	local requests = {}
-	for _, request in ipairs(item_request_proxies) do
-		if request.proxy_target == entity then
-			table.insert(requests, {position = request.position, insert_plan = request.insert_plan, removal_plan = request.removal_plan})
-		end
-	end
-	
-	-- Flush all fluidboxes so the liquids don't get lost.
-	for i=1,#entity.fluidbox do
-		entity.fluidbox.flush(i)
-	end
- 
-	-- Catch the next on_mined event
-	prevent_mining_entity = entity
-	
-	-- History patching only works in old versions of Factorio (at least 2.0.7 confirmed)
-	local new_entity = nil
-	if history_patching_enabled then
-		log_undo_stack("Before ")
-		patch_history(info.position, base_name, target_name)
-
-		info.fast_replace = true
-		info.player = player
-		new_entity = entity.surface.create_entity(info)
-
-		local undo_stack = player.undo_redo_stack
-		undo_stack.remove_undo_action(1, 2)
-		undo_stack.remove_undo_action(1, 1)
-		log_undo_stack("After ")
-	else
-		info.fast_replace = false
-		info.player = player
-		new_entity = entity.surface.create_entity(info)
-		entity.destroy()
-	end
-
-
-	if new_entity.type == 'assembling-machine' then
-		set_recipe(new_entity, recipe, recipe_quality)
-	end
-	for prop, value in pairs(extra) do
-		new_entity[prop] = value
-	end
-	if has_open then
-		player.opened = new_entity
-	end
-
-	-- Give back items.
-	local dump = new_entity.get_inventory(defines.inventory.assembling_machine_dump) or new_entity.get_inventory(defines.inventory.burnt_result) or new_entity.get_inventory(defines.inventory.assembling_machine_output)
-	if actor then
-		dump = actor
-	end
-	for inventory_id, items in pairs(item_stacks) do
-		local inventory = new_entity.get_inventory(inventory_id)
-		for i, stack in pairs(items) do
-			if inventory and inventory[i] and inventory[i].can_set_stack(stack) then
-				inventory[i].transfer_stack(stack)
-			elseif inventory and inventory.can_insert(items[i]) then
-				inventory.insert(items[i])
-			elseif new_entity.can_insert(items[i]) then
-				new_entity.insert(items[i])
-			else
-				dump.insert(items[i])
-			end
-		end
-	end
-
-	-- Recover the item requests.
-	for _, request in ipairs(requests) do
-		new_entity.surface.create_entity({
-			name = "item-request-proxy",
-			target = new_entity,
-			modules = request.insert_plan,
-			removal_plan = request.removal_plan,
-			position = request.position,
-			force = new_entity.force
-		})
-	end
-
-	return true
+local transition=require("transition")
+local function target_name(entity,original)
+  local base_name=get_base(original or transition.original_name(entity.name))
+  local inherent=(base_name=="fabricator" and 1 or 0)
+  local count=inherent+count_modules(entity)
+  return count==inherent and base_name or base_name.."-upcrafting-"..count
+end
+local function update_entity(entity,recipe,recipe_quality,actor)
+  if transition.is_helper(entity) then return false end
+  local modules=entity.get_module_inventory()
+  if not modules or entity.has_flag("not-selectable-in-game") or machine_blacklist[entity.name] then return false end
+  local target=target_name(entity)
+  if target==entity.name then return false end
+  return transition.begin(entity,target,recipe,recipe_quality)
 end
 
 local active_chunks = {}
@@ -398,8 +250,8 @@ local function scan_active_chunks()
 	active_chunks = {}
 end
 
-script.on_init(scan_all)
-script.on_configuration_changed(scan_all)
+script.on_init(function() migration.adopt();scan_all() end)
+script.on_configuration_changed(function() migration.adopt();scan_all() end)
 script.on_nth_tick(30, function() scan_next_inactive_chunks() scan_active_chunks() end)
 
 local filter = {filter = "crafting-machine"}
@@ -430,3 +282,8 @@ script.on_event(defines.events.on_player_mined_entity, on_mined, {filter})
 script.on_event(defines.events.on_space_platform_mined_entity, on_mined, {filter})
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, function() chunks_per_second = settings.global['no-more-gambling-scan-chunks-per-second'].value end)
+
+
+
+-- Only machines with an outstanding, finite native transition run here.
+script.on_event(defines.events.on_tick,function() transition.tick(target_name,adjust_recipe) end)

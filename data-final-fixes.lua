@@ -61,3 +61,4 @@ end
 for name, mod in pairs(data.raw['module']) do
 	upcrafting.module_adjust_upgrade_chance(mod)
 end
+require("transition-prototypes")

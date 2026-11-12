@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.7
+Date: 2026-11-12
+  Changes:
+    - Continue deterministic quality crafting and precision fabricators on Factorio 2.1.
+    - Preserve paid crafting, buffered items and fluid temperatures when quality modules change.
+    - Retain item metadata, circuit connections, orientation and machine flags during replacement.
+    - Adopt existing No More Gambling state and pending transitions without renaming game objects.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.6
   Changes:
   - Blacklist Maraxis sand extractors.

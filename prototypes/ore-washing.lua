@@ -13,7 +13,7 @@ local function generate_uprade_icons_from_item(item)
 	end
 	icons[#icons + 1] =
 	{
-		icon = "__no-more-gambling__/graphics/icons/ore-washing.png"
+		icon = "__no-more-gambling-updated__/graphics/icons/ore-washing.png"
 	}
 	return icons
 end
@@ -30,7 +30,7 @@ local function generate_washing_recipe(item)
 			icons = icons,
 			order = item.order,
 			subgroup = "ore-washing",
-			category = "chemistry",
+			categories = {"chemistry"},
 			enabled = true,
 			allow_productivity = false,
 			unlock_results = false,

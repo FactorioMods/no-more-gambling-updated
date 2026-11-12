@@ -1,4 +1,4 @@
-require("__base__.prototypes.entity.assemblerpipes")
+local assembler_pictures = require("__base__.prototypes.entity.assembler-pictures")
 require("__base__.prototypes.entity.pipecovers")
 require("circuit-connector-sprites")
 local sounds = require("__base__.prototypes.entity.sounds")
@@ -25,7 +25,7 @@ data:extend
 	{
 		type = "technology",
 		name = "component-fabricator",
-		icon = "__no-more-gambling__/graphics/technology/fabricator.png",
+		icon = "__no-more-gambling-updated__/graphics/technology/fabricator.png",
 		icon_size = 256,
 		effects =
 		{
@@ -54,7 +54,7 @@ data:extend
 	{
 		type = "item",
 		name = "fabricator",
-		icon = "__no-more-gambling__/graphics/icons/precision-fabricator.png",
+		icon = "__no-more-gambling-updated__/graphics/icons/precision-fabricator.png",
 		subgroup = "production-machine",
 		order = "c[assembling-machine-9-precision-fabricator]",
 		inventory_move_sound = item_sounds.mechanical_inventory_move,
@@ -79,7 +79,7 @@ data:extend
 	{
 		type = "assembling-machine",
 		name = "fabricator",
-		icon = "__no-more-gambling__/graphics/icons/precision-fabricator.png",
+		icon = "__no-more-gambling-updated__/graphics/icons/precision-fabricator.png",
 		flags = {"placeable-neutral", "placeable-player", "player-creation"},
 		minable = {mining_time = 0.2, result = "fabricator"},
 		max_health = 400,
@@ -100,7 +100,7 @@ data:extend
 		{
 		  {
 			production_type = "input",
-			pipe_picture = assembler3pipepictures(),
+			pipe_picture = table.deepcopy(assembler_pictures.assembler3pipepictures),
 			pipe_covers = pipecoverspictures(),
 			volume = 1000,
 			pipe_connections = {{ flow_direction="input", direction = defines.direction.north, position = {0, -1} }},
@@ -108,7 +108,7 @@ data:extend
 		  },
 		  {
 			production_type = "output",
-			pipe_picture = assembler3pipepictures(),
+			pipe_picture = table.deepcopy(assembler_pictures.assembler3pipepictures),
 			pipe_covers = pipecoverspictures(),
 			volume = 1000,
 			pipe_connections = {{ flow_direction="output", direction = defines.direction.south, position = {0, 1} }},
@@ -138,7 +138,7 @@ data:extend
 			layers =
 			{
 			  {
-				filename = "__no-more-gambling__/graphics/entity/precision-fabricator/precision-fabricator.png",
+				filename = "__no-more-gambling-updated__/graphics/entity/precision-fabricator/precision-fabricator.png",
 				priority = "high",
 				width = 214,
 				height = 237,
@@ -148,7 +148,7 @@ data:extend
 				scale = 0.5
 			  },
 			  {
-				filename = "__no-more-gambling__/graphics/entity/precision-fabricator/precision-fabricator-shadow.png",
+				filename = "__no-more-gambling-updated__/graphics/entity/precision-fabricator/precision-fabricator-shadow.png",
 				priority = "high",
 				width = 260,
 				height = 162,

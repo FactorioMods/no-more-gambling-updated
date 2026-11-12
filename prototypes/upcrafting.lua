@@ -61,7 +61,12 @@ local function generate_upcrafting_recipe(recipe, n)
 	if recipe.localised_name == nil then
 		cpy.localised_name = {"?", {"recipe-name." .. recipe.name}, {"item-name." .. (main_product or recipe.name)}, {"entity-name." .. (main_product or recipe.name)}, {"equipment-name." .. (main_product or recipe.name)}}
 	end
-	cpy.category = get_base((recipe.category or "crafting")).."-upcrafting-"..n
+	cpy.categories = {}
+	for _, category in pairs(recipe.categories or {recipe.category or "crafting"}) do
+	  table.insert(cpy.categories, get_base(category).."-upcrafting-"..n)
+	end
+	cpy.category = nil
+	cpy.additional_categories = nil
 	cpy.allow_decomposition = false
 	cpy.hide_from_player_crafting = true
 	cpy.hidden_in_factoriopedia = true
