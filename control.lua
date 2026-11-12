@@ -1,4 +1,5 @@
 local migration=require("migration-state")
+local legacy_recipes=require("legacy-recipe-names")
 local prevent_mining_entity = nil
 
 _, _, major, minor, patch = string.find(script.active_mods["base"], "(%d+).(%d+).(%d+)")
@@ -35,9 +36,11 @@ local function adjust_recipe(recipe_name, crafter_name)
 	local num_base_quality_mods = (base_name == "fabricator" and 1 or 0)
     local num_quality_mods = match and tonumber(match) or num_base_quality_mods
 	local base_recipe = get_base(recipe_name)
-	local target_recipe = base_recipe.."-upcrafting-"..num_quality_mods
+	local scaled_suffix = base_recipe:match("%-RS$") and "-RS" or ""
+	if scaled_suffix ~= "" then base_recipe = base_recipe:sub(1, -4) end
+	local target_recipe = base_recipe.."-upcrafting-"..num_quality_mods..scaled_suffix
 	if num_quality_mods == 0 then
-		target_recipe = base_recipe
+		target_recipe = base_recipe..scaled_suffix
 	end
 	return target_recipe
 end
@@ -250,8 +253,8 @@ local function scan_active_chunks()
 	active_chunks = {}
 end
 
-script.on_init(function() migration.adopt();scan_all() end)
-script.on_configuration_changed(function() migration.adopt();scan_all() end)
+script.on_init(function() migration.adopt();legacy_recipes.migrate_pending(storage.nmg_transitions);scan_all() end)
+script.on_configuration_changed(function() migration.adopt();legacy_recipes.migrate_pending(storage.nmg_transitions);scan_all() end)
 script.on_nth_tick(30, function() scan_next_inactive_chunks() scan_active_chunks() end)
 
 local filter = {filter = "crafting-machine"}

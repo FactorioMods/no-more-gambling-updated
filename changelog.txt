@@ -2,6 +2,7 @@
 Version: 1.2.7
 Date: 2026-11-12
   Changes:
+    - Retain generated quality recipes when base recipes are renamed by the engine or other mods.
     - Continue deterministic quality crafting and precision fabricators on Factorio 2.1.
     - Preserve paid crafting, buffered items and fluid temperatures when quality modules change.
     - Retain item metadata, circuit connections, orientation and machine flags during replacement.

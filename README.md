@@ -1,9 +1,9 @@
 # No More Gambling: Updated
 
-A Factorio 2.1 continuation of [No More Gambling by API-Beast](https://github.com/API-Beast/no-more-gambling). Retains its deterministic quality recipes, washing and precision fabricators.
+Retains deterministic quality recipes, ore washing and precision fabricators from No More Gambling 1.2.6 by API-Beast (@beast_pixels).
 
-Changing quality modules finishes the already paid craft before switching recipes. Finite machine buffers retain their items, qualities, spoilage, tags and fluid temperatures across the transition. Native circuit connections, machine orientation and player-set flags remain intact. Material restoration waits when output is blocked; it does not draw additional inputs while finishing the old craft.
+The Factorio 2.1 continuation finishes an already paid craft before changing its recipe when quality modules change. Finite item and fluid buffers retain quality, spoilage, tags and temperature; machine orientation, circuit connections and player-set flags are carried through the transition. Generated quality recipes and pending recipe names follow current native renames, including scaled recipe suffixes.
 
-Existing No More Gambling worlds migrate through Factorio's native ownership mechanism. Original entities, items, recipes and settings retain their names, including pending crafting transitions. Do not enable both editions together.
+Requires Factorio 2.1.24 or newer, Quality and Space Age. Existing worlds use native ownership migration, including pending transitions. Power, circuit conditions or blocked output can delay completion and restoration. Enable this edition in place of the original.
 
-Based on original 1.2.6, authentic upstream commit `5fb33d93be3c569552df71f90328eefdcf418c25`. Original code and artwork are attributed to API-Beast (@beast_pixels); the Mod Portal declares the MIT license. Runtime compatibility and state-preservation changes are maintained by FactorioMods.
+[Mod Portal](https://mods.factorio.com/mod/no-more-gambling-updated) · [Source and issues](https://github.com/FactorioMods/no-more-gambling-updated) · [Original mod](https://mods.factorio.com/mod/no-more-gambling) by API-Beast (@beast_pixels). [Original source](https://github.com/API-Beast/no-more-gambling).
