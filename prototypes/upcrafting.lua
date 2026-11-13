@@ -37,8 +37,16 @@ local function generate_upcrafting_recipe(recipe, n)
 		end
 	end
 
+	local is_recycling = false
+	for _, category in pairs(recipe.categories or {recipe.category}) do
+		if category == "recycling" or category == "recycling-or-hand-crafting" then
+			is_recycling = true
+			break
+		end
+	end
+
 	for k,v in pairs(recipe_map) do
-		if recipe.category == "recycling" or recipe.category == "recycling-or-hand-crafting" then
+		if is_recycling then
 			v.expected_output = 0.25
 		else
 			v.expected_output = (v.output + v.output_variance) * v.probability
